@@ -83,7 +83,7 @@ class Player:
             self.fireWait = self.weapon.stats["fireRate"]
 
         self.fireWait -= dt
-        self.ink = min(100, self.ink + 0.1 * (self.hidden * 10))
+        self.ink = min(100, self.ink + 0.1 * (1 + self.hidden * 10))
 
     def __repr__(self):
         return "{player object: weapon: " + self.weapon.name + ", weapon stats: " + str(self.weapon.stats) + ", squid: " + str(self.squid) + ", submerged in ink: " + str(self.hidden) + "}"
@@ -95,7 +95,7 @@ class Player:
             draw.circle(sc, darken(self.color,int(self.hidden)*25),self.pos, 8)
 
         draw.rect(sc, 0, (3, 3, 18, 34))
-        draw.rect(sc, self.color, (4, 4, 16, 32))
+        draw.rect(sc, self.color, (4, 4, 16, self.ink*0.32))
 
 
 projectiles = []
