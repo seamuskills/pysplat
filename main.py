@@ -79,8 +79,10 @@ class Player:
 
         self.pos += self.vel
         if pygame.mouse.get_pressed()[0] and self.fireWait <= 0 and not self.squid:
-            self.weapon.shoot(self.pos, self.color, pygame.mouse.get_pos())
-            self.fireWait = self.weapon.stats["fireRate"]
+            if self.ink > self.weapon.stats["consumption"]:
+                self.weapon.shoot(self.pos, self.color, pygame.mouse.get_pos())
+                self.fireWait = self.weapon.stats["fireRate"]
+                self.ink -= self.weapon.stats["consumption"]
 
         self.fireWait -= dt
         self.ink = min(100, self.ink + 0.1 * (1 + self.hidden * 10))
