@@ -87,6 +87,9 @@ class Player:
         self.fireWait -= dt
         self.ink = min(100, self.ink + 0.1 * (1 + self.hidden * 10))
 
+        self.pos.x = min(1070, max(0, self.pos.x))
+        self.pos.y = min(710, max(0, self.pos.y))
+
     def __repr__(self):
         return "{player object: weapon: " + self.weapon.name + ", weapon stats: " + str(self.weapon.stats) + ", squid: " + str(self.squid) + ", submerged in ink: " + str(self.hidden) + "}"
 
