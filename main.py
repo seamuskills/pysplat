@@ -33,7 +33,8 @@ class Weapon:
                 "accuracyDebuff": 15
             },
             "fireRate": 66,
-            "consumption": 3
+            "consumption": 2,
+            "rechargeDelay": 500
         }
         self.stats = self.stats | stats
         self.name = displayName
@@ -48,7 +49,7 @@ weapons = {
 
 class Player:
     def __init__(self, x=0, y=0):
-        self.ink = 0
+        self.ink = 100
         self.pos = pygame.Vector2(x, y)
         self.vel = pygame.Vector2(0, 0)
         self.color = pygame.Color(0xffa500FF)
@@ -58,6 +59,7 @@ class Player:
         self.fireWait = 0
         self.squid = False
         self.hidden = False
+        self.rechargeDelay = 0
 
     def rect(self):
         return pygame.Rect(self.pos.x-8, self.pos.y-8, 16, 16)
@@ -68,7 +70,7 @@ class Player:
 
         self.squid = keys[pygame.K_SPACE]
 
-        floorColor = inkSurf.get_at((int(self.pos.x+8), int(self.pos.y+8)))
+        floorColor = inkSurf.get_at((int(self.pos.x), int(self.pos.y)))
         floorColor.a = 0
         self.hidden = self.squid and floorColor == darken(self.color)
 
@@ -83,12 +85,15 @@ class Player:
                 self.weapon.shoot(self.pos, self.color, pygame.mouse.get_pos())
                 self.fireWait = self.weapon.stats["fireRate"]
                 self.ink -= self.weapon.stats["consumption"]
+            self.rechargeDelay = self.weapon.stats["rechargeDelay"]
 
         self.fireWait -= dt
-        self.ink = min(100, self.ink + 0.1 * (1 + self.hidden * 10))
+        self.ink = min(100, self.ink + (0.1 * (1 + self.hidden * 10) * int(self.rechargeDelay <= 0)))
 
         self.pos.x = min(1070, max(0, self.pos.x))
         self.pos.y = min(710, max(0, self.pos.y))
+
+        self.rechargeDelay -= dt
 
     def __repr__(self):
         return "{player object: weapon: " + self.weapon.name + ", weapon stats: " + str(self.weapon.stats) + ", squid: " + str(self.squid) + ", submerged in ink: " + str(self.hidden) + "}"
@@ -97,10 +102,10 @@ class Player:
         if not self.squid:
             draw.rect(sc, self.color, self.rect())
         else:
-            draw.circle(sc, darken(self.color,int(self.hidden)*25),self.pos, 8)
+            draw.circle(sc, darken(self.color, int(self.hidden)*25), self.pos, 8)
 
         draw.rect(sc, 0, (3, 3, 18, 34))
-        draw.rect(sc, self.color, (4, 4, 16, self.ink*0.32))
+        draw.rect(sc, darken(self.color,50 * (self.hidden != True and self.rechargeDelay >= 0 or (self.rechargeDelay >= 0))), (4, 4, 16, self.ink*0.32))
 
 
 projectiles = []
