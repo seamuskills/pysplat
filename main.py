@@ -105,7 +105,7 @@ class Player:
             draw.circle(sc, darken(self.color, int(self.hidden)*25), self.pos, 8)
 
         draw.rect(sc, 0, (3, 3, 18, 34))
-        draw.rect(sc, darken(self.color,50 * (self.hidden != True and self.rechargeDelay >= 0 or (self.rechargeDelay >= 0))), (4, 4, 16, self.ink*0.32))
+        draw.rect(sc, darken(self.color,50 * (self.rechargeDelay >= 0)), (4, 4, 16, self.ink*0.32))
 
 
 projectiles = []
