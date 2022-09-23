@@ -2,22 +2,33 @@ import pygame
 import random
 from pygame import draw
 
+# to compile a new version for use without python (although compilation does require python) use these commands:
+# cd <project path>
+# auto-py-to-exe
+
+# this should bring up a ui for compiling to exe
+# cd <project path> isn't needed or valid if you are already in the project's path or using the console in pycharm
+# compiling a new version does obviously require python, if you don't have python use the existing main.exe
+
 pygame.init()
 sc = pygame.display.set_mode((1080, 720))
 c = pygame.time.Clock()
 dt = 1
 keys = None
 
+
 def approach(x, y, a):
     if x < y:
-        return min(x+a, y)
+        return min(x + a, y)
     if x > y:
-        return max(x-a, y)
+        return max(x - a, y)
     return y
 
+
 def darken(c, value=50):
-    #return ((c & 0x7E7E7E) >> 1) | (c & 0x808080)
+    # return ((c & 0x7E7E7E) >> 1) | (c & 0x808080)
     return c - pygame.Color(value, value, value)
+
 
 class Weapon:
     def __init__(self, stats, displayName):
@@ -28,7 +39,7 @@ class Weapon:
                 "damage": 30,
                 "size": 5,
                 "range": 300,
-                "paintRange": (7,15),
+                "paintRange": (7, 15),
                 "landPaint": 20,
                 "accuracyDebuff": 15
             },
@@ -41,6 +52,7 @@ class Weapon:
 
     def shoot(self, pos, color, dest):
         inkBullet(pos.copy(), dest, color, self.stats["projectile"])
+
 
 weapons = {
     "defaultTest": Weapon({}, "missingno")
@@ -62,7 +74,7 @@ class Player:
         self.rechargeDelay = 0
 
     def rect(self):
-        return pygame.Rect(self.pos.x-8, self.pos.y-8, 16, 16)
+        return pygame.Rect(self.pos.x - 8, self.pos.y - 8, 16, 16)
 
     def update(self):
         moveh = keys[pygame.K_d] - keys[pygame.K_a]
@@ -74,10 +86,10 @@ class Player:
         floorColor.a = 0
         self.hidden = self.squid and floorColor == darken(self.color)
 
-        speedmult = (1+self.hidden*1.5)
+        speedmult = (1 + self.hidden * 1.5)
 
-        self.vel.x = approach(self.vel.x/dt, moveh*self.maxsp*speedmult, self.accel*speedmult)*dt
-        self.vel.y = approach(self.vel.y/dt, movev*self.maxsp*speedmult, self.accel*speedmult)*dt
+        self.vel.x = approach(self.vel.x / dt, moveh * self.maxsp * speedmult, self.accel * speedmult) * dt
+        self.vel.y = approach(self.vel.y / dt, movev * self.maxsp * speedmult, self.accel * speedmult) * dt
 
         self.pos += self.vel
         if pygame.mouse.get_pressed()[0] and self.fireWait <= 0 and not self.squid:
@@ -96,19 +108,22 @@ class Player:
         self.rechargeDelay -= dt
 
     def __repr__(self):
-        return "{player object: weapon: " + self.weapon.name + ", weapon stats: " + str(self.weapon.stats) + ", squid: " + str(self.squid) + ", submerged in ink: " + str(self.hidden) + "}"
+        return "{player object: weapon: " + self.weapon.name + ", weapon stats: " + str(
+            self.weapon.stats) + ", squid: " + str(self.squid) + ", submerged in ink: " + str(self.hidden) + "}"
 
     def draw(self):
         if not self.squid:
             draw.rect(sc, self.color, self.rect())
         else:
-            draw.circle(sc, darken(self.color, int(self.hidden)*25), self.pos, 8)
+            draw.circle(sc, darken(self.color, int(self.hidden) * 25), self.pos, 8)
 
         draw.rect(sc, 0, (3, 3, 18, 34))
-        draw.rect(sc, darken(self.color,50 * (self.rechargeDelay >= 0)), (4, 4, 16, self.ink*0.32))
+        draw.rect(sc, darken(self.color, 50 * (self.rechargeDelay >= 0)), (4, 4, 16, self.ink * 0.32))
 
 
 projectiles = []
+
+
 class inkBullet:
     def __init__(self, pos, dest, color, stats={}):
         self.pos = pos
@@ -120,7 +135,7 @@ class inkBullet:
             "damage": 30,
             "size": 5,
             "range": 300,
-            "paintRange": (7,15),
+            "paintRange": (7, 15),
             "landPaint": 20,
             "accuracyDebuff": 3
         }
@@ -131,13 +146,14 @@ class inkBullet:
         self.vel = self.vel.rotate(random.randrange(-self.stats["accuracyDebuff"], self.stats["accuracyDebuff"], 1))
 
     def update(self):
-        self.paintTime += dt * (random.random()*2)
-        self.pos += self.vel*self.stats["speed"]*dt
-        self.stats["range"] -= dt * (random.random()*2)
+        self.paintTime += dt * (random.random() * 2)
+        self.pos += self.vel * self.stats["speed"] * dt
+        self.stats["range"] -= dt * (random.random() * 2)
 
         if self.paintTime >= self.stats["tpd"]:
             self.paintTime = 0
-            draw.circle(inkSurf, self.paintColor, self.pos, random.randint(self.stats["paintRange"][0], self.stats["paintRange"][1]))
+            draw.circle(inkSurf, self.paintColor, self.pos,
+                        random.randint(self.stats["paintRange"][0], self.stats["paintRange"][1]))
 
         if self.stats["range"] <= 0:
             draw.circle(inkSurf, self.paintColor, self.pos, self.stats["landPaint"])
