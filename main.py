@@ -106,19 +106,19 @@ class Player:
 
         self.pos += self.vel
         if pygame.mouse.get_pressed()[0] and self.fireWait <= 0 and not self.squid:
-            if self.ink > self.weapon.stats["consumption"]:
+            if self.ink >= self.weapon.stats["consumption"]:
                 self.weapon.shoot(self.pos, self.color, pygame.mouse.get_pos())
-                self.fireWait = self.weapon.stats["fireRate"]
                 self.ink -= self.weapon.stats["consumption"]
             self.rechargeDelay = self.weapon.stats["rechargeDelay"]
+            self.fireWait = self.weapon.stats["fireRate"]
 
         self.fireWait -= 1
-        self.ink = min(100, self.ink + (0.1 + (0.555 * self.hidden) * int(self.rechargeDelay <= 0)))
+        self.ink = min(100, self.ink + ((0.1 + (0.555 * self.hidden)) * int(self.rechargeDelay <= 0)))
 
         self.pos.x = min(1070, max(0, self.pos.x))
         self.pos.y = min(710, max(0, self.pos.y))
 
-        self.rechargeDelay -= 1
+        if self.fireWait <= 0: self.rechargeDelay -= 1
 
     def __repr__(self):
         return "{player object: weapon: " + self.weapon.name + ", weapon stats: " + str(
